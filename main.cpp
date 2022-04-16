@@ -1,7 +1,25 @@
 #include <raylib.h>
 #include <chipmunk.h>
 
+#include <cmath>
+
 #include "drawing.h"
+
+cpVect* generatePolyVerts(int n, double r)
+{
+	constexpr double twopi = 2.0 * 3.1415926;
+
+	cpVect* verts = new cpVect[n];
+	double angle = 0.0;
+	for (int i = 0; i < n; i++)
+	{
+		verts[i] = cpv(r * cos(angle), r * sin(angle));
+
+		angle += twopi / static_cast<double>(n);
+	}
+
+	return verts;
+}
 
 int main()
 {
@@ -46,6 +64,18 @@ int main()
 	cpConstraint* pin = cpSpaceAddConstraint(space, cpSlideJointNew(ballBody, boxBody, cpvzero, cpvzero, 30, 70));
 	cpConstraintSetUserData(pin, (void*)SlideJoint);
 
+	constexpr int numVerts = 7;
+	cpVect* verts = generatePolyVerts(numVerts, 25);
+	
+	cpBody* polyBody = cpSpaceAddBody(space, cpBodyNew(mass, cpMomentForPoly(mass, numVerts, verts, cpvzero, 0)));
+	cpBodySetPosition(polyBody, cpv(50, -5));
+
+	cpShape* polyShape = cpSpaceAddShape(space, cpPolyShapeNew(polyBody, numVerts, verts, cpTransformIdentity, 0));
+	cpShapeSetFriction(polyShape, 1);
+	cpShapeSetUserData(polyShape, (void*)PolyShape);
+
+	delete[] verts;
+
 	cpFloat timeStep = 1.0 / 60.0;
 
 	SetConfigFlags(FLAG_VSYNC_HINT);
@@ -73,6 +103,8 @@ int main()
 		EndDrawing();
 	}
 
+	cpShapeFree(polyShape);
+	cpBodyFree(polyBody);
 	cpConstraintFree(pin);
 	cpShapeFree(boxShape);
 	cpBodyFree(boxBody);
