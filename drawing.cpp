@@ -128,6 +128,48 @@ static void DrawSlideJoint(cpConstraint* constraint, Color color)
 	DrawLineEx(Vector2{ largeBoxB1.x, largeBoxB1.y }, Vector2{ largeBoxA1.x, largeBoxA1.y }, 1, color);
 }
 
+static void DrawPivotJoint(cpConstraint* constraint, Color color)
+{
+	// get bodies the contraint is attached to
+	cpBody* a = cpConstraintGetBodyA(constraint);
+	cpBody* b = cpConstraintGetBodyB(constraint);
+
+	// get anchor coordinates
+	cpVect anchorA = cpPivotJointGetAnchorA(constraint);
+	cpVect anchorB = cpPivotJointGetAnchorB(constraint);
+
+	// transform anchor coordinates from body-local space to world space
+	anchorA = cpBodyLocalToWorld(a, anchorA);
+	anchorB = cpBodyLocalToWorld(b, anchorB);
+
+	// draw circles at anchors
+	DrawCircleLines(anchorA.x, anchorA.y, 5, color);
+	DrawCircleLines(anchorB.x, anchorB.y, 5, color);
+}
+
+static void DrawGrooveJoint(cpConstraint* constraint, Color color)
+{
+	// get bodies the contraint is attached to
+	cpBody* a = cpConstraintGetBodyA(constraint);
+	cpBody* b = cpConstraintGetBodyB(constraint);
+
+	// get groove coordinates and anchor coordinates
+	cpVect grooveA1 = cpGrooveJointGetGrooveA(constraint);
+	cpVect grooveA2 = cpGrooveJointGetGrooveB(constraint);
+	cpVect anchorB = cpGrooveJointGetAnchorB(constraint);
+
+	// transform coordinates to world space
+	grooveA1 = cpBodyLocalToWorld(a, grooveA1);
+	grooveA2 = cpBodyLocalToWorld(a, grooveA2);
+	anchorB = cpBodyLocalToWorld(b, anchorB);
+
+	// draw line for groove
+	DrawLineEx(Vector2{ grooveA1.x, grooveA1.y }, Vector2{ grooveA2.x, grooveA2.y }, 1, color);
+
+	// draw circle for anchor
+	DrawCircleLines(anchorB.x, anchorB.y, 5, color);
+}
+
 static void DrawConstraint(cpConstraint* constraint, Color* data)
 {
 	Color color = data ? *data : WHITE;
@@ -139,6 +181,14 @@ static void DrawConstraint(cpConstraint* constraint, Color* data)
 
 	case SlideJoint:
 		DrawSlideJoint(constraint, color);
+		break;
+
+	case PivotJoint:
+		DrawPivotJoint(constraint, color);
+		break;
+
+	case GrooveJoint:
+		DrawGrooveJoint(constraint, color);
 		break;
 	}
 }
