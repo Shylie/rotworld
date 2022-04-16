@@ -5,10 +5,15 @@
 
 int main()
 {
+	Camera2D cam;
+	cam.offset = Vector2{ 320, 240 };
+	cam.rotation = 0;
+	cam.zoom = 1;
+
 	cpSpace* space = cpSpaceNew();
 	cpSpaceSetGravity(space, cpv(0, 250));
 
-	cpShape* ground = cpSegmentShapeNew(cpSpaceGetStaticBody(space), cpv(0, 0), cpv(320, 240), 0);
+	cpShape* ground = cpSegmentShapeNew(cpSpaceGetStaticBody(space), cpv(0, 0), cpv(320, 200), 0);
 	cpShapeSetFriction(ground, 1);
 	cpShapeSetUserData(ground, (void*)SegmentShape);
 	cpSpaceAddShape(space, ground);
@@ -54,11 +59,16 @@ int main()
 
 		if (!paused) { cpSpaceStep(space, GetFrameTime()); }
 
+		cpVect pos = cpBodyGetPosition(boxBody);
+		cam.target = Vector2{ pos.x, pos.y };
+
 		BeginDrawing();
 
 		ClearBackground(BLACK);
 
+		BeginMode2D(cam);
 		DrawSpace(space);
+		EndMode2D();
 
 		EndDrawing();
 	}
