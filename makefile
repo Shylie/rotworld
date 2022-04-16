@@ -7,7 +7,7 @@ HEADER_FILES   = drawing.h
 SOURCE_FILES   = main.cpp drawing.cpp
 OBJS           = $(patsubst %.cpp, %.o, $(SOURCE_FILES))
 
-INCLUDE_PATHS  = -I. -I$(RAYLIB_PATH)/src -I$(CHIPMUNK_PATH)/include/chipmunk
+INCLUDE_PATHS  = -I$(RAYLIB_PATH)/src -I$(CHIPMUNK_PATH)/include/chipmunk
 CXXFLAGS      := $(CXXFLAGS)
 LDFLAGS       := -L$(RAYLIB_PATH)/src -L$(CHIPMUNK_PATH)/build/src/ -lraylib -lchipmunk -lwinmm -lgdi32 -static $(LDFLAGS)
 
