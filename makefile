@@ -5,8 +5,8 @@ CHIPMUNK_PATH    ?= $(LIBS_PATH)/Chipmunk2D
 
 CXX               = g++
 
-HEADER_FILES      = drawing.h
-SOURCE_FILES      = main.cpp drawing.cpp
+HEADER_FILES      = drawing.h userdata.h linkedlist.h
+SOURCE_FILES      = main.cpp drawing.cpp userdata.cpp
 OBJS              = $(patsubst %.cpp, %.o, $(SOURCE_FILES))
 
 INCLUDE_PATHS     = -I$(RAYLIB_PATH)/src -I$(CHIPMUNK_PATH)/include/chipmunk

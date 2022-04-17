@@ -1,4 +1,4 @@
-#include "drawing.h"
+#include "userdata.h"
 #include <raylib.h>
 
 static void DrawSegmentShape(cpShape* shape, Color color)
@@ -46,17 +46,17 @@ static void DrawPolyShape(cpShape* shape, Color color)
 static void DrawShape(cpShape* shape, Color* data)
 {
 	Color color = data ? *data : WHITE;
-	switch (reinterpret_cast<unsigned long long>(cpShapeGetUserData(shape)))
+	switch (reinterpret_cast<UserData*>(cpShapeGetUserData(shape))->drawType)
 	{
-	case SegmentShape:
+	case DrawType::SegmentShape:
 		DrawSegmentShape(shape, color);
 		break;
 
-	case CircleShape:
+	case DrawType::CircleShape:
 		DrawCircleShape(shape, color);
 		break;
 
-	case PolyShape:
+	case DrawType::PolyShape:
 		DrawPolyShape(shape, color);
 		break;
 	}
@@ -238,25 +238,25 @@ static void DrawDampedSprint(cpConstraint* constraint, Color color)
 static void DrawConstraint(cpConstraint* constraint, Color* data)
 {
 	Color color = data ? *data : WHITE;
-	switch (reinterpret_cast<unsigned long long>(cpConstraintGetUserData(constraint)))
+	switch (reinterpret_cast<UserData*>(cpConstraintGetUserData(constraint))->drawType)
 	{
-	case PinJoint:
+	case DrawType::PinJoint:
 		DrawPinJoint(constraint, color);
 		break;
 
-	case SlideJoint:
+	case DrawType::SlideJoint:
 		DrawSlideJoint(constraint, color);
 		break;
 
-	case PivotJoint:
+	case DrawType::PivotJoint:
 		DrawPivotJoint(constraint, color);
 		break;
 
-	case GrooveJoint:
+	case DrawType::GrooveJoint:
 		DrawGrooveJoint(constraint, color);
 		break;
 
-	case DampedSpring:
+	case DrawType::DampedSpring:
 		DrawDampedSprint(constraint, color);
 		break;
 	}

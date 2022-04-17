@@ -4,6 +4,9 @@
 #include <cmath>
 
 #include "drawing.h"
+#include "userdata.h"
+
+#include "linkedlist.h"
 
 cpVect* generatePolyVerts(int n, double r)
 {
@@ -28,28 +31,30 @@ int main()
 	cam.rotation = 0;
 	cam.zoom = 1.8;
 
+	LinkedList<UserData> userData;
+
 	cpSpace* space = cpSpaceNew();
 	cpSpaceSetGravity(space, cpv(0, 250));
 
 	cpShape* ground = cpSegmentShapeNew(cpSpaceGetStaticBody(space), cpv(0, 0), cpv(320, 200), 0);
 	cpShapeSetFriction(ground, 1);
-	cpShapeSetUserData(ground, (void*)SegmentShape);
+	cpShapeSetUserData(ground, userData.insert(DrawType::SegmentShape));
 	cpSpaceAddShape(space, ground);
 
 	cpShape* ground2 = cpSegmentShapeNew(cpSpaceGetStaticBody(space), cpv(320, 240), cpv(640, 0), 0);
 	cpShapeSetFriction(ground2, 1);
-	cpShapeSetUserData(ground2, (void*)SegmentShape);
+	cpShapeSetUserData(ground2, userData.insert(DrawType::SegmentShape));
 	cpSpaceAddShape(space, ground2);
 
 	cpFloat mass = 1;
-	cpFloat radius = 10;
+	cpFloat radius = 7.5;
 
 	cpBody* ballBody = cpSpaceAddBody(space, cpBodyNew(mass, cpMomentForCircle(mass, 0, radius, cpvzero)));
 	cpBodySetPosition(ballBody, cpv(5, -5));
 
 	cpShape* ballShape = cpSpaceAddShape(space, cpCircleShapeNew(ballBody, radius, cpvzero));
 	cpShapeSetFriction(ballShape, 1);
-	cpShapeSetUserData(ballShape, (void*)CircleShape);
+	cpShapeSetUserData(ballShape, userData.insert(DrawType::CircleShape));
 
 	cpFloat width = 15;
 	cpFloat height = 15;
@@ -59,10 +64,10 @@ int main()
 
 	cpShape* boxShape = cpSpaceAddShape(space, cpBoxShapeNew(boxBody, width, height, 0));
 	cpShapeSetFriction(boxShape, 1);
-	cpShapeSetUserData(boxShape, (void*)PolyShape);
+	cpShapeSetUserData(boxShape, userData.insert(DrawType::PolyShape));
 
 	cpConstraint* spr = cpSpaceAddConstraint(space, cpDampedSpringNew(ballBody, boxBody, cpvzero, cpvzero, 60, 20, 0));
-	cpConstraintSetUserData(spr, (void*)DampedSpring);
+	cpConstraintSetUserData(spr, userData.insert(DrawType::DampedSpring));
 
 	constexpr int numVerts = 7;
 	cpVect* verts = generatePolyVerts(numVerts, 25);
@@ -72,7 +77,7 @@ int main()
 
 	cpShape* polyShape = cpSpaceAddShape(space, cpPolyShapeNew(polyBody, numVerts, verts, cpTransformIdentity, 0));
 	cpShapeSetFriction(polyShape, 1);
-	cpShapeSetUserData(polyShape, (void*)PolyShape);
+	cpShapeSetUserData(polyShape, userData.insert(DrawType::PolyShape));
 
 	delete[] verts;
 

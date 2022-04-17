@@ -1,8 +1,12 @@
+#ifndef DRAWING_H
+#define DRAWING_H
+
 #include <chipmunk.h>
 
-enum DrawType : unsigned long long
+enum class DrawType
 {
-	SegmentShape = 1,
+	None,
+	SegmentShape,
 	CircleShape,
 	PolyShape,
 	PinJoint,
@@ -18,3 +22,5 @@ enum DrawType : unsigned long long
 };
 
 void DrawSpace(cpSpace* space);
+
+#endif//DRAWING_H
