@@ -1,4 +1,4 @@
-BUILD_MODE       ?= Release
+BUILD_MODE       ?= Debug
 
 RAYLIB_PATH      ?= $(LIBS_PATH)/raylib
 CHIPMUNK_PATH    ?= $(LIBS_PATH)/Chipmunk2D
