@@ -170,6 +170,71 @@ static void DrawGrooveJoint(cpConstraint* constraint, Color color)
 	DrawCircleLines(anchorB.x, anchorB.y, 5, color);
 }
 
+// https://github.com/slembcke/Chipmunk2D/blob/master/src/cpSpaceDebug.c#L124-L151
+static void DrawDampedSprint(cpConstraint* constraint, Color color)
+{
+	// get bodies the contraint is attached to
+	cpBody* a = cpConstraintGetBodyA(constraint);
+	cpBody* b = cpConstraintGetBodyB(constraint);
+
+	// get anchor points
+	cpVect anchorA = cpDampedSpringGetAnchorA(constraint);
+	cpVect anchorB = cpDampedSpringGetAnchorB(constraint);
+
+	// transform anchor points to world space
+	anchorA = cpBodyLocalToWorld(a, anchorA);
+	anchorB = cpBodyLocalToWorld(b, anchorB);
+
+	// get vector between anchorA and anchorB
+	cpVect diff = anchorB - anchorA;
+
+	// separate x and y component to form a rotation matrix out of them
+	cpFloat cos = diff.x;
+	cpFloat sin = diff.y;
+
+	// get reciprocal of length of diff
+	cpFloat scaling = 1.0 / cpvlength(diff);
+
+	// construct rotation matrix
+	cpVect r1 = cpv(cos, -sin * scaling);
+	cpVect r2 = cpv(sin, cos * scaling);
+
+	// declare untransformed vertices
+	cpVect verts[] =
+	{
+		cpv(0, 0),
+		cpv(0.2, 0),
+		cpv(0.25, 3),
+		cpv(0.3, -6),
+		cpv(0.35, 6),
+		cpv(0.4, -6),
+		cpv(0.45, 6),
+		cpv(0.475, -6),
+		cpv(0.525, 6),
+		cpv(0.55, -6),
+		cpv(0.6, 6),
+		cpv(0.65, -6),
+		cpv(0.7, 6),
+		cpv(0.75, -3),
+		cpv(0.8, 0),
+		cpv(1, 0)
+	};
+
+	constexpr int numVerts = sizeof(verts) / sizeof(*verts);
+
+	// transform vertices
+	for (int i = 0; i < numVerts; i++)
+	{
+		verts[i] = cpv(cpvdot(verts[i], r1) + anchorA.x, cpvdot(verts[i], r2) + anchorA.y);
+	}
+
+	// draw vertices
+	for (int i = 0; i < numVerts - 1; i++)
+	{
+		DrawLineEx(Vector2{ verts[i].x, verts[i].y }, Vector2{ verts[i + 1].x, verts[i + 1].y }, 1, color);
+	}
+}
+
 static void DrawConstraint(cpConstraint* constraint, Color* data)
 {
 	Color color = data ? *data : WHITE;
@@ -189,6 +254,10 @@ static void DrawConstraint(cpConstraint* constraint, Color* data)
 
 	case GrooveJoint:
 		DrawGrooveJoint(constraint, color);
+		break;
+
+	case DampedSpring:
+		DrawDampedSprint(constraint, color);
 		break;
 	}
 }

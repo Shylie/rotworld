@@ -26,7 +26,7 @@ int main()
 	Camera2D cam;
 	cam.offset = Vector2{ 320, 240 };
 	cam.rotation = 0;
-	cam.zoom = 1;
+	cam.zoom = 1.8;
 
 	cpSpace* space = cpSpaceNew();
 	cpSpaceSetGravity(space, cpv(0, 250));
@@ -61,8 +61,8 @@ int main()
 	cpShapeSetFriction(boxShape, 1);
 	cpShapeSetUserData(boxShape, (void*)PolyShape);
 
-	cpConstraint* pin = cpSpaceAddConstraint(space, cpSlideJointNew(ballBody, boxBody, cpvzero, cpvzero, 30, 70));
-	cpConstraintSetUserData(pin, (void*)SlideJoint);
+	cpConstraint* spr = cpSpaceAddConstraint(space, cpDampedSpringNew(ballBody, boxBody, cpvzero, cpvzero, 60, 20, 0));
+	cpConstraintSetUserData(spr, (void*)DampedSpring);
 
 	constexpr int numVerts = 7;
 	cpVect* verts = generatePolyVerts(numVerts, 25);
@@ -105,7 +105,7 @@ int main()
 
 	cpShapeFree(polyShape);
 	cpBodyFree(polyBody);
-	cpConstraintFree(pin);
+	cpConstraintFree(spr);
 	cpShapeFree(boxShape);
 	cpBodyFree(boxBody);
 	cpShapeFree(ballShape);
