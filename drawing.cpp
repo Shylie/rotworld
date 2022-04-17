@@ -20,7 +20,7 @@ static void DrawCircleShape(cpShape* shape, Color color)
 	cpVect position = cpBodyLocalToWorld(cpShapeGetBody(shape), cpCircleShapeGetOffset(shape));
 	cpFloat radius = cpCircleShapeGetRadius(shape);
 	// draw the circle
-	DrawCircleLines(position.x, position.y, radius, color);
+	DrawRing(Vector2{ position.x, position.y }, radius - 1, radius, 0, 360, 36, color);
 }
 
 static void DrawPolyShape(cpShape* shape, Color color)
@@ -39,7 +39,7 @@ static void DrawPolyShape(cpShape* shape, Color color)
 		next = cpBodyLocalToWorld(body, next);
 
 		// draw a line between the two vertices
-		DrawLine(current.x, current.y, next.x, next.y, color);
+		DrawLineEx(Vector2{ current.x, current.y }, Vector2{ next.x, next.y }, 1, color);
 	}
 }
 
