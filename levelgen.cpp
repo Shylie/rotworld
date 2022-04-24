@@ -14,7 +14,6 @@ private:
 	static bool randomChance(float chance)
 	{
 		float roll = (rand() / static_cast<float>(RAND_MAX));
-		TraceLog(LOG_INFO, "c: %f | rv: %s", roll, (roll < chance) ? "true" : "false");
 		return roll < chance;
 	}
 
