@@ -17,15 +17,15 @@ int main()
 
 	float angle = 0.0f;
 
-	space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 2.5);
+	space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 25);
 
 	while (!WindowShouldClose())
 	{
 		const float ft = GetFrameTime();
-		if (IsKeyDown(KEY_A)) { angle -= ft * 36.0f; }
-		if (IsKeyDown(KEY_D)) { angle += ft * 36.0f; }
+		if (IsKeyDown(KEY_A)) { angle -= ft * 90.0f; }
+		if (IsKeyDown(KEY_D)) { angle += ft * 90.0f; }
 
-		space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 2.5);
+		space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 25);
 		space->step(1.0 / 60.0);
 
 		cpVect pos = reinterpret_cast<cp::Body*>(space->getUserData())->getPosition();
