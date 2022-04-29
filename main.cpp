@@ -8,14 +8,15 @@ constexpr int MAX_SAMPLES = 512;
 constexpr int MAX_SAMPLES_PER_UPDATE = 4096;
 constexpr int SAMPLE_RATE = 44100;
 
-struct AudioData
+struct CallbackData
 {
 	AudioStream stream;
 	float timePlaying;
+	float hp;
 };
 
 void BeepCallback(short* buffer, unsigned int frames);
-int OnCollideBegin(cp::Arbiter arbiter, cp::Space& space, AudioData* data);
+int OnCollideBegin(cp::Arbiter arbiter, cp::Space& space, CallbackData* data);
 
 int main()
 {
@@ -23,9 +24,10 @@ int main()
 	InitWindow(640, 480, "rotworld");
 	InitAudioDevice();
 
-	AudioData data;
+	CallbackData data;
 	data.stream = LoadAudioStream(44100, 8 * sizeof(short), 1);
 	data.timePlaying = 0;
+	data.hp = 1000.0f;
 	SetAudioStreamCallback(data.stream, (AudioCallback)&BeepCallback);
 
 	PlayAudioStream(data.stream);
@@ -76,6 +78,9 @@ int main()
 		space->draw(GREEN, RED);
 		EndMode2D();
 
+		DrawRectangle(18, 18, 104, 24, Color{ 100, 15, 30, 255 });
+		DrawRectangle(20, 20, static_cast<int>(data.hp / 10.0f), 20, RED);
+
 		EndDrawing();
 	}
 
@@ -101,9 +106,18 @@ void BeepCallback(short* buffer, unsigned int frames)
 	}
 }
 
-int OnCollideBegin(cp::Arbiter arbiter, cp::Space& space, AudioData* data)
+int OnCollideBegin(cp::Arbiter arbiter, cp::Space& space, CallbackData* data)
 {
 	ResumeAudioStream(data->stream);
 	data->timePlaying += 0.125f;
+
+	cp::Body* body = static_cast<cp::Body*>(space.getUserData());
+	float lost = cpvdot(body->getVelocity(), arbiter.getNormal());
+	if (lost > 0)
+	{
+		data->hp -= lost;
+		if (data->hp < 0) { data->hp = 0; }
+	}
+
 	return true;
 }
