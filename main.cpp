@@ -44,8 +44,8 @@ int main()
 
 	float angle = 0.0f;
 
-	space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 25);
-	space->setDamping(0.8);
+	space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 50);
+	space->setDamping(0.5);
 
 	while (!WindowShouldClose())
 	{
@@ -63,7 +63,7 @@ int main()
 			}
 		}
 
-		space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 25);
+		space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 50);
 		space->step(1.0 / 60.0);
 
 		cpVect pos = reinterpret_cast<cp::Body*>(space->getUserData())->getPosition();
