@@ -8,7 +8,7 @@ constexpr int MAX_SAMPLES = 512;
 constexpr int MAX_SAMPLES_PER_UPDATE = 4096;
 constexpr int SAMPLE_RATE = 44100;
 
-struct CallbackData
+struct CallbackData12
 {
 	AudioStream stream;
 	float timePlaying;
@@ -16,7 +16,8 @@ struct CallbackData
 };
 
 void BeepCallback(short* buffer, unsigned int frames);
-int OnCollideBegin(cp::Arbiter arbiter, cp::Space& space, CallbackData* data);
+int OnCollideBegin12(cp::Arbiter arbiter, cp::Space& space, CallbackData12* data);
+int OnCollideBegin13(cp::Arbiter arbiter, cp::Space& space, bool* data);
 
 int main()
 {
@@ -24,7 +25,7 @@ int main()
 	InitWindow(640, 480, "rotworld");
 	InitAudioDevice();
 
-	CallbackData data;
+	CallbackData12 data;
 	data.stream = LoadAudioStream(44100, 8 * sizeof(short), 1);
 	data.timePlaying = 0;
 	data.hp = 1000.0f;
@@ -33,14 +34,21 @@ int main()
 	PlayAudioStream(data.stream);
 	PauseAudioStream(data.stream);
 
+	bool won = false;
+
 	Camera2D cam;
 	cam.offset = Vector2{ 320, 240 };
 	cam.zoom = 2.0f;
 
-	cp::Space* space = generateLevel(10, 10, 125);
+	cpFloat gridSize = 150;
 
-	space->setDefaultCollisionBeginFunc((cp::Space::CollisionBeginFunc)&OnCollideBegin);
-	space->setDefaultCollisionUserData(&data);
+	cp::Space* space = generateLevel(10, 10, gridSize);
+
+	space->setCollisionBeginFunc(1, 2, (cp::Space::CollisionBeginFunc)&OnCollideBegin12);
+	space->setCollisionUserData(1, 2, &data);
+
+	space->setCollisionBeginFunc(1, 3, (cp::Space::CollisionBeginFunc)&OnCollideBegin13);
+	space->setCollisionUserData(1, 3, &won);
 
 	float angle = 0.0f;
 
@@ -64,7 +72,27 @@ int main()
 		}
 
 		space->setGravity(cpvforangle(DEG2RAD * (-angle + 90.0f)) * 50);
-		space->step(1.0 / 60.0);
+		if (data.hp > 0)
+		{
+			space->step(1.0 / 60.0);
+		}
+
+		if (won)
+		{
+			won = false;
+			data.hp = 1000.0f;
+			delete space;
+			gridSize -= 10;
+			space = generateLevel(10, 10, gridSize);
+			
+			space->setDamping(0.5);
+
+			space->setCollisionBeginFunc(1, 2, (cp::Space::CollisionBeginFunc)&OnCollideBegin12);
+			space->setCollisionUserData(1, 2, &data);
+
+			space->setCollisionBeginFunc(1, 3, (cp::Space::CollisionBeginFunc)&OnCollideBegin13);
+			space->setCollisionUserData(1, 3, &won);
+		}
 
 		cpVect pos = reinterpret_cast<cp::Body*>(space->getUserData())->getPosition();
 		cam.target = Vector2{ pos.x, pos.y };
@@ -80,6 +108,11 @@ int main()
 
 		DrawRectangle(18, 18, 104, 24, Color{ 100, 15, 30, 255 });
 		DrawRectangle(20, 20, static_cast<int>(data.hp / 10.0f), 20, RED);
+
+		if (data.hp <= 0)
+		{
+			DrawText("You lost!", 200, 20, 20, RED);
+		}
 
 		EndDrawing();
 	}
@@ -106,7 +139,7 @@ void BeepCallback(short* buffer, unsigned int frames)
 	}
 }
 
-int OnCollideBegin(cp::Arbiter arbiter, cp::Space& space, CallbackData* data)
+int OnCollideBegin12(cp::Arbiter arbiter, cp::Space& space, CallbackData12* data)
 {
 	ResumeAudioStream(data->stream);
 	data->timePlaying += 0.125f;
@@ -118,6 +151,13 @@ int OnCollideBegin(cp::Arbiter arbiter, cp::Space& space, CallbackData* data)
 		data->hp -= lost;
 		if (data->hp < 0) { data->hp = 0; }
 	}
+
+	return true;
+}
+
+int OnCollideBegin13(cp::Arbiter arbiter, cp::Space& space, bool* data)
+{
+	*data = true;
 
 	return true;
 }

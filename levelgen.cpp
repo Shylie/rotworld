@@ -172,13 +172,17 @@ cp::Space* generateLevel(int gridWidth, int gridHeight, cpFloat gridSize)
 	cp::Body* staticBody = space->getStaticBody();
 
 	// top border segment
-	space->add(new cp::SegmentShape(staticBody, cpv(-gridSize / 2.0, -gridSize / 2.0), cpv(gridWidth * gridSize - gridSize / 2.0, -gridSize / 2.0), 0.0));
-	// bottom border segment
-	space->add(new cp::SegmentShape(staticBody, cpv(-gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), cpv(gridWidth * gridSize - gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), 0.0));
+	space->add(new cp::SegmentShape(staticBody, cpv(-gridSize / 2.0, -gridSize / 2.0), cpv(gridWidth * gridSize - gridSize / 2.0, -gridSize / 2.0), 0.0))->setCollisionType(2);
+	// bottom border segments
+	int chosen = rand() % gridWidth;
+	space->add(new cp::SegmentShape(staticBody, cpv(-gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), cpv(chosen * gridSize - gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), 0.0))->setCollisionType(2);
+	space->add(new cp::SegmentShape(staticBody, cpv((chosen + 1) * gridSize - gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), cpv(gridWidth * gridSize - gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), 0.0))->setCollisionType(2);
+	// exit segment
+	space->add(new cp::SegmentShape(staticBody, cpv(chosen * gridSize - gridSize / 2.0, gridHeight * gridSize), cpv((chosen + 1) * gridSize - gridSize / 2.0, gridHeight * gridSize), 0.0))->setCollisionType(3);
 	// left border segment
-	space->add(new cp::SegmentShape(staticBody, cpv(-gridSize / 2.0, -gridSize / 2.0), cpv(-gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), 0.0));
+	space->add(new cp::SegmentShape(staticBody, cpv(-gridSize / 2.0, -gridSize / 2.0), cpv(-gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), 0.0))->setCollisionType(2);
 	// right border segment
-	space->add(new cp::SegmentShape(staticBody, cpv(gridWidth * gridSize - gridSize / 2.0, -gridSize / 2.0), cpv(gridWidth * gridSize - gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), 0.0));
+	space->add(new cp::SegmentShape(staticBody, cpv(gridWidth * gridSize - gridSize / 2.0, -gridSize / 2.0), cpv(gridWidth * gridSize - gridSize / 2.0, gridHeight * gridSize - gridSize / 2.0), 0.0))->setCollisionType(2);
 
 	// horizontal inner segments
 	for (int j = 1; j < gridHeight; j++)
@@ -188,7 +192,7 @@ cp::Space* generateLevel(int gridWidth, int gridHeight, cpFloat gridSize)
 			bool* conn = m(i + j * gridWidth, i + (j - 1) * gridWidth);
 			if (conn && *conn)
 			{
-				space->add(new cp::SegmentShape(staticBody, cpv(i * gridSize - gridSize / 2.0, j * gridSize - gridSize / 2.0), cpv((i + 1) * gridSize - gridSize / 2.0, j * gridSize - gridSize / 2.0), 0.0));
+				space->add(new cp::SegmentShape(staticBody, cpv(i * gridSize - gridSize / 2.0, j * gridSize - gridSize / 2.0), cpv((i + 1) * gridSize - gridSize / 2.0, j * gridSize - gridSize / 2.0), 0.0))->setCollisionType(2);
 			}
 		}
 	}
@@ -201,7 +205,7 @@ cp::Space* generateLevel(int gridWidth, int gridHeight, cpFloat gridSize)
 			bool* conn = m(i + j * gridWidth, i - 1 + j * gridWidth);
 			if (conn && *conn)
 			{
-				space->add(new cp::SegmentShape(staticBody, cpv(i * gridSize - gridSize / 2.0, j * gridSize - gridSize / 2.0), cpv(i * gridSize - gridSize / 2.0, (j + 1) * gridSize - gridSize / 2.0), 0.0));
+				space->add(new cp::SegmentShape(staticBody, cpv(i * gridSize - gridSize / 2.0, j * gridSize - gridSize / 2.0), cpv(i * gridSize - gridSize / 2.0, (j + 1) * gridSize - gridSize / 2.0), 0.0))->setCollisionType(2);
 			}
 		}
 	}
@@ -210,7 +214,7 @@ cp::Space* generateLevel(int gridWidth, int gridHeight, cpFloat gridSize)
 	const float radius = 5.0;
 
 	cp::Body* playerBody = space->add(new cp::Body(mass, cpMomentForCircle(mass, radius, 0, cpvzero)));
-	space->add(new cp::CircleShape(playerBody, radius, cpvzero));
+	space->add(new cp::CircleShape(playerBody, radius, cpvzero))->setCollisionType(1);
 	space->setUserData(playerBody);
 
 	return space;
